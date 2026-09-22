@@ -1,0 +1,14 @@
+{
+  "domestic": [
+    { "city": "Algiers", "code": "ALG", "airport": "Houari Boumediene Airport" },
+    { "city": "Oran", "code": "ORN", "airport": "Ahmed Ben Bella Airport" },
+    { "city": "Constantine", "code": "CZL", "airport": "Mohamed Boudiaf Airport" },
+    { "city": "Annaba", "code": "AAE", "airport": "Rabah Bitat Airport" }
+  ],
+  "international": [
+    { "city": "Paris", "code": "CDG", "airport": "Charles de Gaulle Airport" },
+    { "city": "Marseille", "code": "MRS", "airport": "Marseille Provence Airport" },
+    { "city": "Istanbul", "code": "IST", "airport": "Istanbul Airport" },
+    { "city": "Dubai", "code": "DXB", "airport": "Dubai International Airport" }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "oneWaySearches": [
+    {
+      "from": "Algiers",
+      "to": "Oran",
+      "cabinClass": "Economy",
+      "adults": 1,
+      "children": 0,
+      "infants": 0
+    },
+    {
+      "from": "Algiers",
+      "to": "Paris",
+      "cabinClass": "Economy",
+      "adults": 2,
+      "children": 1,
+      "infants": 1
+    }
+  ],
+  "invalidSearches": [
+    {
+      "from": "Algiers",
+      "to": "Algiers",
+      "expectedError": "Origin and destination cannot be the same"
+    }
+  ]
+}
