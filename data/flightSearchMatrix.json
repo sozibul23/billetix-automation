@@ -1,0 +1,126 @@
+{
+  "positiveSearches": {
+    "oneWay": [
+      {
+        "id": "OW-01",
+        "description": "Domestic one-way: Algiers to Oran, 1 adult, Economy",
+        "from": "ALG",
+        "fromCity": "Algiers",
+        "to": "ORN",
+        "toCity": "Oran",
+        "daysAhead": 7,
+        "cabinClass": "Economy",
+        "adults": 1,
+        "children": 0,
+        "infants": 0
+      },
+      {
+        "id": "OW-02",
+        "description": "International one-way: Algiers to Paris CDG, 2 adults 1 child 1 infant, Economy",
+        "from": "ALG",
+        "fromCity": "Algiers",
+        "to": "CDG",
+        "toCity": "Paris",
+        "daysAhead": 30,
+        "cabinClass": "Economy",
+        "adults": 2,
+        "children": 1,
+        "infants": 1
+      },
+      {
+        "id": "OW-03",
+        "description": "Domestic one-way: Algiers to Constantine, 1 adult, Business",
+        "from": "ALG",
+        "fromCity": "Algiers",
+        "to": "CZL",
+        "toCity": "Constantine",
+        "daysAhead": 14,
+        "cabinClass": "Business",
+        "adults": 1,
+        "children": 0,
+        "infants": 0
+      }
+    ],
+    "roundTrip": [
+      {
+        "id": "RT-01",
+        "description": "Domestic round-trip: Algiers to Oran, 1 adult, Economy, return +7 days",
+        "from": "ALG",
+        "fromCity": "Algiers",
+        "to": "ORN",
+        "toCity": "Oran",
+        "departureDaysAhead": 7,
+        "returnDaysAhead": 14,
+        "cabinClass": "Economy",
+        "adults": 1,
+        "children": 0,
+        "infants": 0
+      },
+      {
+        "id": "RT-02",
+        "description": "International round-trip: Algiers to Istanbul, 2 adults, Economy",
+        "from": "ALG",
+        "fromCity": "Algiers",
+        "to": "IST",
+        "toCity": "Istanbul",
+        "departureDaysAhead": 21,
+        "returnDaysAhead": 28,
+        "cabinClass": "Economy",
+        "adults": 2,
+        "children": 0,
+        "infants": 0
+      }
+    ]
+  },
+  "negativeSearches": {
+    "sameOriginDestination": [
+      {
+        "id": "NEG-ROUTE-01",
+        "description": "Same city: Algiers to Algiers should be rejected",
+        "from": "ALG",
+        "fromCity": "Algiers",
+        "to": "ALG",
+        "toCity": "Algiers",
+        "expectedBehavior": "Search button disabled or validation error shown"
+      }
+    ],
+    "passengerConstraints": [
+      {
+        "id": "NEG-PAX-01",
+        "description": "Infant count (2) exceeds adult count (1) — must be prohibited",
+        "adults": 1,
+        "infants": 2,
+        "expectedBehavior": "Infant increment button disabled at count 2 when adults = 1"
+      },
+      {
+        "id": "NEG-PAX-02",
+        "description": "Total passengers exceeds 9 (GDS limit)",
+        "adults": 9,
+        "children": 1,
+        "infants": 0,
+        "expectedBehavior": "Child/adult increment button disabled when total = 9"
+      }
+    ],
+    "dateConstraints": [
+      {
+        "id": "NEG-DATE-01",
+        "description": "Past departure date should be disabled in calendar",
+        "targetDate": "past",
+        "expectedBehavior": "Past calendar dates are greyed out and not clickable"
+      },
+      {
+        "id": "NEG-DATE-02",
+        "description": "Return date cannot precede departure date in round-trip",
+        "departureDaysAhead": 14,
+        "returnDaysAhead": 7,
+        "expectedBehavior": "Return date selector blocks or auto-corrects dates before departure"
+      },
+      {
+        "id": "NEG-DATE-03",
+        "description": "Departure date more than 360 days in advance",
+        "departureDaysAhead": 365,
+        "expectedBehavior": "Calendar blocks or no results returned beyond booking window"
+      }
+    ]
+  }
+}

@@ -12,6 +12,8 @@ export class FlightSearchResultsPage extends BasePage {
   readonly noFlightsBanner: Locator;
   readonly modifySearchButton: Locator;
   readonly flightDetailsButtons: Locator;
+  // Mobile: button that opens the filter/sort drawer
+  readonly mobileFilterButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -25,6 +27,11 @@ export class FlightSearchResultsPage extends BasePage {
     this.noFlightsBanner = page.locator('text=/No flights found|Aucun vol trouvé|لا توجد رحلات/i');
     this.modifySearchButton = page.locator('button:has-text("Modify"), a:has-text("Modify")');
     this.flightDetailsButtons = page.locator('button:has-text("Details"), button:has-text("Détails")');
+    // Mobile filter drawer trigger button
+    this.mobileFilterButton = page
+      .locator('button')
+      .filter({ hasText: /Filter|Filtrer|Sort|Trier/i })
+      .first();
   }
 
   async waitForSearchResultsLoaded() {
@@ -48,11 +55,22 @@ export class FlightSearchResultsPage extends BasePage {
     }
   }
 
+  /**
+   * On mobile, the filter sidebar is rendered inline (not a hidden drawer).
+   * The checkbox may be scrolled off-screen — scroll it into view via JS first.
+   */
   async filterByNonStop() {
-    if (await this.nonStopCheckbox.isVisible()) {
-      await this.nonStopCheckbox.check({ force: true });
-      await this.page.waitForTimeout(1000);
-    }
+    const isVisible = await this.nonStopCheckbox.isVisible();
+    if (!isVisible) return;
+
+    // Use JavaScript scrollIntoView + click to bypass both:
+    // 1. "outside of viewport" — element exists but is scrolled off-screen
+    // 2. "intercepts pointer events" — overlapping filter panel div
+    await this.nonStopCheckbox.evaluate((el: HTMLInputElement) => {
+      el.scrollIntoView({ block: 'center', behavior: 'instant' });
+      el.click();
+    });
+    await this.page.waitForTimeout(1000);
   }
 
   async selectAirline(airlineName: string) {
