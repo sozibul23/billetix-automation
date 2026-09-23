@@ -25,6 +25,7 @@
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.49.1",
     "@types/node": "^22.10.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "xlsx": "^0.18.5"
   }
 }
