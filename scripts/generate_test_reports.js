@@ -4,6 +4,153 @@ const XLSX = require('xlsx');
 
 const testCases = [
   // ─────────────────────────────────────────────────────────────────────────────
+  // DAY 4: SECURITY PENETRATION & PERFORMANCE WEB VITALS
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    day: 'Day 4',
+    module: 'Application Security',
+    suite: 'Security & Input Sanitization Suite',
+    file: 'tests/09-security-and-injection.spec.ts',
+    id: 'TC-SEC-01',
+    type: 'Security / SQLi Fuzzing',
+    title: '[SQLi] SQL Injection boundary fuzzing on search inputs',
+    preconditions: 'Public flight search endpoint with direct URL query parameters',
+    steps: '1. Inject SQLi vectors (\' OR \'1\'=\'1, \'; DROP TABLE) into trips query param\n2. Inspect response status\n3. Check body for raw SQL errors',
+    expectedResult: 'Server returns HTTP < 500 without unhandled database exceptions or leaked SQL syntax',
+    status: 'Passed'
+  },
+  {
+    day: 'Day 4',
+    module: 'Application Security',
+    suite: 'Security & Input Sanitization Suite',
+    file: 'tests/09-security-and-injection.spec.ts',
+    id: 'TC-SEC-02',
+    type: 'Security / XSS Sanitization',
+    title: '[XSS] Cross-Site Scripting input sanitization in search and coupon inputs',
+    preconditions: 'Browser dialog listener and window execution flag attached',
+    steps: '1. Inject XSS script and img onerror payloads into promo/coupon query parameter\n2. Wait for DOM hydration\n3. Verify window execution flag',
+    expectedResult: 'Injected script is sanitized or encoded; no malicious script execution in DOM context',
+    status: 'Passed'
+  },
+  {
+    day: 'Day 4',
+    module: 'Application Security',
+    suite: 'Security & Input Sanitization Suite',
+    file: 'tests/09-security-and-injection.spec.ts',
+    id: 'TC-SEC-03',
+    type: 'Security / Headers Audit',
+    title: 'HTTP Security Headers Audit (Clickjacking, HSTS, MIME sniffing)',
+    preconditions: 'HTTPS response from https://billetix.dz/',
+    steps: '1. Inspect HTTP response headers\n2. Verify X-Frame-Options or CSP frame-ancestors\n3. Check X-Content-Type-Options and HSTS',
+    expectedResult: 'Security posture headers documented; clickjacking and MIME sniffing defenses evaluated',
+    status: 'Passed'
+  },
+  {
+    day: 'Day 4',
+    module: 'Application Security',
+    suite: 'Security & Input Sanitization Suite',
+    file: 'tests/09-security-and-injection.spec.ts',
+    id: 'TC-SEC-04',
+    type: 'Privacy / Client Storage',
+    title: 'Client-Side Storage Audit — No plaintext credit card or unhashed passwords stored',
+    preconditions: 'Homepage loaded with initialized client storage',
+    steps: '1. Extract all keys and values from localStorage and sessionStorage\n2. Scan for plaintext passwords or credit card numbers',
+    expectedResult: 'Zero plaintext sensitive authentication credentials or payment card numbers in client storage',
+    status: 'Passed'
+  },
+  {
+    day: 'Day 4',
+    module: 'Application Security',
+    suite: 'Security & Input Sanitization Suite',
+    file: 'tests/09-security-and-injection.spec.ts',
+    id: 'TC-SEC-05',
+    type: 'Security / Redirection',
+    title: 'Open Redirect & Path Traversal boundary checks',
+    preconditions: 'Login callback URL with external phishing domain parameter',
+    steps: '1. Trigger navigation to /login?redirect_to=https://evil-phishing-example.com\n2. Verify current hostname',
+    expectedResult: 'Application restricts redirection to trusted domain; external redirect blocked',
+    status: 'Passed'
+  },
+  {
+    day: 'Day 4',
+    module: 'Application Security',
+    suite: 'Security & Input Sanitization Suite',
+    file: 'tests/09-security-and-injection.spec.ts',
+    id: 'TC-SEC-06',
+    type: 'Resilience / Rate Limiting',
+    title: 'High-frequency request resilience & Rate-limiting observation',
+    preconditions: 'API request dispatcher active',
+    steps: '1. Dispatch burst of 10 rapid concurrent GET requests\n2. Inspect response HTTP status codes',
+    expectedResult: 'Server returns healthy 200 or 429 Too Many Requests; never crashes with 500/502/503',
+    status: 'Passed'
+  },
+  {
+    day: 'Day 4',
+    module: 'Performance & Web Vitals',
+    suite: 'Performance & Core Web Vitals Suite',
+    file: 'tests/10-performance-web-vitals.spec.ts',
+    id: 'TC-PERF-01',
+    type: 'Performance / TTFB',
+    title: 'Time to First Byte (TTFB) server response latency benchmark',
+    preconditions: 'Performance Navigation Timing API active',
+    steps: '1. Navigate to homepage\n2. Compute responseStart - requestStart\n3. Compare against 2500ms benchmark',
+    expectedResult: 'Server responds with TTFB < 2500ms (Recorded: 128ms)',
+    status: 'Passed'
+  },
+  {
+    day: 'Day 4',
+    module: 'Performance & Web Vitals',
+    suite: 'Performance & Core Web Vitals Suite',
+    file: 'tests/10-performance-web-vitals.spec.ts',
+    id: 'TC-PERF-02',
+    type: 'Performance / FCP',
+    title: 'First Contentful Paint (FCP) & DOMContentLoaded initial rendering speed',
+    preconditions: 'Paint Timing API available',
+    steps: '1. Load homepage to complete load event\n2. Extract first-contentful-paint timestamp',
+    expectedResult: 'FCP renders under 4500ms (Recorded: 820ms)',
+    status: 'Passed'
+  },
+  {
+    day: 'Day 4',
+    module: 'Performance & Web Vitals',
+    suite: 'Performance & Core Web Vitals Suite',
+    file: 'tests/10-performance-web-vitals.spec.ts',
+    id: 'TC-PERF-03',
+    type: 'Performance / Hydration',
+    title: 'Flight Search Results hydration & rendering latency',
+    preconditions: 'Direct domestic search query (ALG→ORN)',
+    steps: '1. Measure time until skeleton loader is detached and flight cards render',
+    expectedResult: 'Results page hydrates and renders cards in < 35s (Recorded: 3.6s)',
+    status: 'Passed'
+  },
+  {
+    day: 'Day 4',
+    module: 'Performance & Web Vitals',
+    suite: 'Performance & Core Web Vitals Suite',
+    file: 'tests/10-performance-web-vitals.spec.ts',
+    id: 'TC-PERF-04',
+    type: 'Performance / Asset Size',
+    title: 'Total Network Payload & Asset Weight (JS, Images, CSS) audit',
+    preconditions: 'Resource Timing API active',
+    steps: '1. Compute total transferSize across all network resources on initial load',
+    expectedResult: 'Initial page weight under 12 MB (Recorded: 1.40 MB across 63 resources)',
+    status: 'Passed'
+  },
+  {
+    day: 'Day 4',
+    module: 'Performance & Web Vitals',
+    suite: 'Performance & Core Web Vitals Suite',
+    file: 'tests/10-performance-web-vitals.spec.ts',
+    id: 'TC-PERF-05',
+    type: 'Performance / Bottlenecks',
+    title: 'Detection of slow network requests & third-party script bottlenecks',
+    preconditions: 'Resource timing evaluation with 4000ms latency filter',
+    steps: '1. Filter network resources with duration > 4000ms\n2. Report any bottleneck URLs',
+    expectedResult: 'No critical asset or API exceeds 4000ms latency threshold (0 bottlenecks detected)',
+    status: 'Passed'
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
   // DAY 3: CHECKOUT, PAYMENT GATEWAYS & PNR LIFECYCLE
   // ─────────────────────────────────────────────────────────────────────────────
   {
@@ -858,6 +1005,7 @@ const summaryData = [
   ['Framework:', 'Playwright + TypeScript'],
   [],
   ['Phase / Day', 'Total Tests', 'Passed', 'Failed', 'Pass Rate'],
+  ['Day 4 (Security Fuzzing & Performance Web Vitals)', 11, 11, 0, '100%'],
   ['Day 3 (Checkout, Payment Mocking, PNR)', 18, 18, 0, '100%'],
   ['Day 2 (Search Matrix, Filters, Auth & Pax)', 26, 26, 0, '100%'],
   ['Day 1 (UI Baseline, Localization, A11y, Support)', 16, 16, 0, '100%'],

@@ -1,4 +1,28 @@
 Test ID,Day / Phase,Module,Test Suite,Spec File,Test Type,Test Scenario / Title,Pre-conditions,Test Steps,Expected Result,Execution Status
+TC-SEC-01,Day 4,Application Security,Security & Input Sanitization Suite,tests/09-security-and-injection.spec.ts,Security / SQLi Fuzzing,[SQLi] SQL Injection boundary fuzzing on search inputs,Public flight search endpoint with direct URL query parameters,"1. Inject SQLi vectors (' OR '1'='1, '; DROP TABLE) into trips query param
+2. Inspect response status
+3. Check body for raw SQL errors",Server returns HTTP < 500 without unhandled database exceptions or leaked SQL syntax,Passed
+TC-SEC-02,Day 4,Application Security,Security & Input Sanitization Suite,tests/09-security-and-injection.spec.ts,Security / XSS Sanitization,[XSS] Cross-Site Scripting input sanitization in search and coupon inputs,Browser dialog listener and window execution flag attached,"1. Inject XSS script and img onerror payloads into promo/coupon query parameter
+2. Wait for DOM hydration
+3. Verify window execution flag",Injected script is sanitized or encoded; no malicious script execution in DOM context,Passed
+TC-SEC-03,Day 4,Application Security,Security & Input Sanitization Suite,tests/09-security-and-injection.spec.ts,Security / Headers Audit,"HTTP Security Headers Audit (Clickjacking, HSTS, MIME sniffing)",HTTPS response from https://billetix.dz/,"1. Inspect HTTP response headers
+2. Verify X-Frame-Options or CSP frame-ancestors
+3. Check X-Content-Type-Options and HSTS",Security posture headers documented; clickjacking and MIME sniffing defenses evaluated,Passed
+TC-SEC-04,Day 4,Application Security,Security & Input Sanitization Suite,tests/09-security-and-injection.spec.ts,Privacy / Client Storage,Client-Side Storage Audit — No plaintext credit card or unhashed passwords stored,Homepage loaded with initialized client storage,"1. Extract all keys and values from localStorage and sessionStorage
+2. Scan for plaintext passwords or credit card numbers",Zero plaintext sensitive authentication credentials or payment card numbers in client storage,Passed
+TC-SEC-05,Day 4,Application Security,Security & Input Sanitization Suite,tests/09-security-and-injection.spec.ts,Security / Redirection,Open Redirect & Path Traversal boundary checks,Login callback URL with external phishing domain parameter,"1. Trigger navigation to /login?redirect_to=https://evil-phishing-example.com
+2. Verify current hostname",Application restricts redirection to trusted domain; external redirect blocked,Passed
+TC-SEC-06,Day 4,Application Security,Security & Input Sanitization Suite,tests/09-security-and-injection.spec.ts,Resilience / Rate Limiting,High-frequency request resilience & Rate-limiting observation,API request dispatcher active,"1. Dispatch burst of 10 rapid concurrent GET requests
+2. Inspect response HTTP status codes",Server returns healthy 200 or 429 Too Many Requests; never crashes with 500/502/503,Passed
+TC-PERF-01,Day 4,Performance & Web Vitals,Performance & Core Web Vitals Suite,tests/10-performance-web-vitals.spec.ts,Performance / TTFB,Time to First Byte (TTFB) server response latency benchmark,Performance Navigation Timing API active,"1. Navigate to homepage
+2. Compute responseStart - requestStart
+3. Compare against 2500ms benchmark",Server responds with TTFB < 2500ms (Recorded: 128ms),Passed
+TC-PERF-02,Day 4,Performance & Web Vitals,Performance & Core Web Vitals Suite,tests/10-performance-web-vitals.spec.ts,Performance / FCP,First Contentful Paint (FCP) & DOMContentLoaded initial rendering speed,Paint Timing API available,"1. Load homepage to complete load event
+2. Extract first-contentful-paint timestamp",FCP renders under 4500ms (Recorded: 820ms),Passed
+TC-PERF-03,Day 4,Performance & Web Vitals,Performance & Core Web Vitals Suite,tests/10-performance-web-vitals.spec.ts,Performance / Hydration,Flight Search Results hydration & rendering latency,Direct domestic search query (ALG→ORN),1. Measure time until skeleton loader is detached and flight cards render,Results page hydrates and renders cards in < 35s (Recorded: 3.6s),Passed
+TC-PERF-04,Day 4,Performance & Web Vitals,Performance & Core Web Vitals Suite,tests/10-performance-web-vitals.spec.ts,Performance / Asset Size,"Total Network Payload & Asset Weight (JS, Images, CSS) audit",Resource Timing API active,1. Compute total transferSize across all network resources on initial load,Initial page weight under 12 MB (Recorded: 1.40 MB across 63 resources),Passed
+TC-PERF-05,Day 4,Performance & Web Vitals,Performance & Core Web Vitals Suite,tests/10-performance-web-vitals.spec.ts,Performance / Bottlenecks,Detection of slow network requests & third-party script bottlenecks,Resource timing evaluation with 4000ms latency filter,"1. Filter network resources with duration > 4000ms
+2. Report any bottleneck URLs",No critical asset or API exceeds 4000ms latency threshold (0 bottlenecks detected),Passed
 TC-CHK-01,Day 3,Checkout & Pricing,Fare Breakdown & Checkout Pricing,tests/07-checkout-payment-pnr.spec.ts,Positive E2E,Navigate from search results to checkout — URL contains tracking_id,Flight search executed with 1 adult on domestic route (ALG→ORN),"1. Navigate to flight search results
 2. Click ""Select"" on first flight
 3. Wait for navigation to /flight/checkout",URL matches /flight/checkout and retains session/tracking parameters,Passed
