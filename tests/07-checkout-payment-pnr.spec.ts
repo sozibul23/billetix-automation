@@ -137,12 +137,11 @@ test.describe('Billetix - Fare Breakdown & Checkout Pricing Suite (Day 3)', () =
       .isVisible({ timeout: 3000 })
       .catch(() => false);
 
-    // App either shows an error OR silently ignores the invalid coupon
-    if (!errorVisible && !genericError) {
-      console.warn('[TC-CHK-06 QA FINDING] Invalid coupon code did not show a visible rejection alert. Recommend explicit error messaging.');
-    }
-    // Test always passes — documents real app behaviour
-    expect(true).toBeTruthy();
+    // Strict Assertion: App must show a visible rejection alert or message when an invalid coupon is applied
+    expect(
+      errorVisible || genericError,
+      'Applying an invalid coupon must display an error or rejection alert to the user'
+    ).toBeTruthy();
   });
 });
 
@@ -170,11 +169,7 @@ test.describe('Billetix - Payment Gateway Mock Suite (Day 3)', () => {
   });
 
   test('TC-PAY-01: [Mocked] Payment Approved — redirects to booking confirmation with PNR', async ({ page }) => {
-    if (!checkoutReachable) {
-      console.warn('[TC-PAY-01] Checkout not reachable — test bypassed.');
-      expect(true).toBeTruthy();
-      return;
-    }
+    expect(checkoutReachable, 'Checkout page must be reachable from search results').toBeTruthy();
 
     // Set up the approved payment mock BEFORE triggering payment
     await mockPaymentApproved(page);
@@ -189,35 +184,29 @@ test.describe('Billetix - Payment Gateway Mock Suite (Day 3)', () => {
 
     // Attempt to submit — the payment intercept will handle the gateway response
     const submitBtn = await checkoutPage.continuePaymentButton.isVisible().catch(() => false);
-    if (!submitBtn) {
-      console.warn('[TC-PAY-01] Continue payment button not visible — test bypassed.');
-      expect(true).toBeTruthy();
-      return;
-    }
+    expect(submitBtn, 'Continue payment button should be visible on checkout page').toBeTruthy();
 
-    // Listen for navigation to confirmation page
+    // Listen for navigation to confirmation page (must be confirmation or success)
     const navigationPromise = page.waitForURL(
-      /\/(booking\/confirmation|confirmation|success|booking)/i,
-      { timeout: 20000 }
+      /\/(confirmation|success|booking\/confirmation)/i,
+      { timeout: 10000 }
     ).catch(() => null);
 
     await checkoutPage.continuePaymentButton.click({ force: true });
     const navResult = await navigationPromise;
 
-    if (navResult !== null) {
-      // Successfully navigated to confirmation — verify URL
-      expect(page.url()).toMatch(/confirmation|success|booking/i);
-    } else {
-      // App may stay on checkout with a success modal — check for PNR
-      const pnr = await paymentPage.getPnrCode();
-      if (pnr) {
-        expect(paymentPage.isPnrFormatValid(pnr)).toBeTruthy();
-      } else {
-        // Mock intercepted but app didn't navigate — document as known gap
-        console.warn('[TC-PAY-01] Payment mock was set up, but app did not navigate to confirmation. Possible: gateway URL pattern mismatch.');
-        expect(true).toBeTruthy();
-      }
-    }
+    // Strict validation: Must reach confirmation page AND display a valid PNR
+    expect(
+      navResult !== null || page.url().includes('confirmation') || page.url().includes('success'),
+      `Payment did not redirect to confirmation page. Current URL: ${page.url()}`
+    ).toBeTruthy();
+
+    const pnr = await paymentPage.getPnrCode();
+    expect(
+      pnr,
+      'Confirmation page must display a valid 6-character PNR code'
+    ).toBeTruthy();
+    expect(paymentPage.isPnrFormatValid(pnr!)).toBeTruthy();
   });
 
   test('TC-PAY-02: [Mocked] Payment Declined — checkout retained, error message shown', async ({ page }) => {
@@ -342,11 +331,11 @@ test.describe('Billetix - Payment Gateway Mock Suite (Day 3)', () => {
       url.includes('payment') || url.includes('booking') || url.includes('checkout')
     );
 
-    // Test passes: documents the double-click behaviour
-    if (!isDisabled) {
-      console.warn(`[TC-PAY-06 QA FINDING] Continue button not disabled after click. Gateway hit count: ${gatewayHits.length}. Recommend adding button disable on first submit to prevent duplicate charges.`);
-    }
-    expect(true).toBeTruthy();
+    // Strict assertion: Button must be disabled after click OR only one request permitted
+    expect(
+      isDisabled || gatewayHits.length <= 1,
+      `Double-click idempotency failure: continue button remained active and fired ${gatewayHits.length} requests`
+    ).toBeTruthy();
   });
 });
 
@@ -393,15 +382,8 @@ test.describe('Billetix - PNR & E-Ticket Verification Suite (Day 3)', () => {
     await page.waitForTimeout(3000);
 
     const pnr = await paymentPage.getPnrCode();
-    if (pnr) {
-      // Validate PNR format: exactly 6 uppercase alphanumeric chars
-      expect(paymentPage.isPnrFormatValid(pnr)).toBeTruthy();
-      console.log(`[TC-PNR-01] PNR detected: ${pnr}`);
-    } else {
-      // PNR not yet visible (checkout not completed) — test passes as environment skip
-      console.warn('[TC-PNR-01] PNR not found on page — checkout may not have completed due to missing live flight.');
-      expect(true).toBeTruthy();
-    }
+    expect(pnr, 'PNR code must be generated and visible after payment submission').toBeTruthy();
+    expect(paymentPage.isPnrFormatValid(pnr!)).toBeTruthy();
   });
 
   test('TC-PNR-02: E-ticket section shows passenger name and flight details', async ({ page }) => {
@@ -424,22 +406,13 @@ test.describe('Billetix - PNR & E-Ticket Verification Suite (Day 3)', () => {
 
     // Check if we reached a confirmation page
     const onConfirmation = page.url().includes('confirmation') || page.url().includes('success');
-    if (!onConfirmation) {
-      console.warn('[TC-PNR-02] Did not reach confirmation page — e-ticket verification skipped.');
-      expect(true).toBeTruthy();
-      return;
-    }
+    expect(onConfirmation, 'Booking must reach confirmation page to display E-ticket details').toBeTruthy();
 
     // Verify e-ticket section exists with flight details
     const eticketVisible = await paymentPage.eticketSection.isVisible({ timeout: 10000 }).catch(() => false);
-    if (eticketVisible) {
-      const sectionText = await paymentPage.eticketSection.innerText();
-      // E-ticket must mention at minimum a passenger name or flight
-      expect(sectionText.length).toBeGreaterThan(10);
-    } else {
-      console.warn('[TC-PNR-02 QA FINDING] E-ticket section not found on confirmation page.');
-      expect(true).toBeTruthy();
-    }
+    expect(eticketVisible, 'E-ticket section must be visible on confirmation page').toBeTruthy();
+    const sectionText = await paymentPage.eticketSection.innerText();
+    expect(sectionText.length).toBeGreaterThan(10);
   });
 
   test('TC-PNR-03: PDF download button present and triggers download event', async ({ page }) => {
@@ -469,29 +442,14 @@ test.describe('Billetix - PNR & E-Ticket Verification Suite (Day 3)', () => {
     await page.waitForTimeout(3000);
 
     const onConfirmation = page.url().includes('confirmation') || page.url().includes('success');
-    if (!onConfirmation) {
-      console.warn('[TC-PNR-03] Did not reach confirmation — PDF download test skipped.');
-      expect(true).toBeTruthy();
-      return;
-    }
+    expect(onConfirmation, 'Confirmation page must be reached to download PDF ticket').toBeTruthy();
 
     const downloadBtnVisible = await paymentPage.downloadPdfButton.isVisible({ timeout: 8000 }).catch(() => false);
-    if (!downloadBtnVisible) {
-      console.warn('[TC-PNR-03 QA FINDING] PDF download button not found on confirmation page.');
-      expect(true).toBeTruthy();
-      return;
-    }
+    expect(downloadBtnVisible, 'PDF download button must be visible on confirmation page').toBeTruthy();
 
-    // Trigger download and verify a download event fires
-    try {
-      const download = await paymentPage.triggerPdfDownload();
-      expect(download).toBeTruthy();
-      expect(download.suggestedFilename()).toMatch(/\.pdf$/i);
-    } catch {
-      // Download event didn't fire — document as finding
-      console.warn('[TC-PNR-03 QA FINDING] PDF download button visible but no download event triggered.');
-      expect(true).toBeTruthy();
-    }
+    const download = await paymentPage.triggerPdfDownload();
+    expect(download, 'Triggering PDF download must emit a download event').toBeTruthy();
+    expect(download.suggestedFilename()).toMatch(/\.pdf$/i);
   });
 
   test('TC-PNR-04: [Negative] Unauthorized PNR access (IDOR check) — returns 404 or access denied', async ({ page }) => {
@@ -515,12 +473,10 @@ test.describe('Billetix - PNR & E-Ticket Verification Suite (Day 3)', () => {
       page.url() === 'https://billetix.dz/' ||
       /not found|404|Access Denied|Unauthorized|login/i.test(pageText);
 
-    if (!isBlocked) {
-      console.warn(`[TC-PNR-04 QA-FINDING-04] IDOR vulnerability: Fake PNR "${fakePnr}" returned content without authentication. URL: ${page.url()}. Recommend server-side PNR ownership validation.`);
-    }
-
-    // Test always passes — documents the finding
-    expect(true).toBeTruthy();
+    expect(
+      isBlocked,
+      `IDOR vulnerability detected: Fake PNR "${fakePnr}" returned sensitive content without authentication at URL: ${page.url()}`
+    ).toBeTruthy();
   });
 });
 
@@ -549,18 +505,14 @@ test.describe('Billetix - Session & Edge Cases Suite (Day 3)', () => {
     // Look for a countdown timer: patterns like "14:55", "15:00 remaining", "Session expires in"
     const timerVisible = await paymentPage.sessionCountdownTimer.isVisible({ timeout: 5000 }).catch(() => false);
 
-    if (!timerVisible) {
-      // Timer might be in a different DOM location — do a broader text search
-      const bodyText = await page.locator('body').innerText().catch(() => '');
-      const hasTimerText = /\d{1,2}:\d{2}|remaining|expires|expire/.test(bodyText);
+    const bodyText = await page.locator('body').innerText().catch(() => '');
+    const hasTimerText = /\d{1,2}:\d{2}|remaining|expires|expire/.test(bodyText);
 
-      if (!hasTimerText) {
-        console.warn('[TC-SESSION-01 QA FINDING] No visible session countdown timer found on checkout page. Recommend adding a visible seat-hold timer to improve UX and prevent unexpected seat release.');
-      }
-    }
-
-    // Test always passes — documents presence or absence as QA observation
-    expect(true).toBeTruthy();
+    // Strict assertion: A visible countdown timer or seat-hold expiration must be present
+    expect(
+      timerVisible || hasTimerText,
+      'A visible session countdown timer must be present on the checkout page'
+    ).toBeTruthy();
   });
 
   test('TC-SESSION-02: [Mocked] Session expiry triggers alert and redirect without data loss', async ({ page }) => {
@@ -594,13 +546,11 @@ test.describe('Billetix - Session & Edge Cases Suite (Day 3)', () => {
     const sessionExpiredModalVisible = await paymentPage.sessionExpiredModal.isVisible({ timeout: 5000 }).catch(() => false);
     const redirectedToSearch = page.url().includes('flight/search') || page.url().includes('home');
 
-    // Either a warning modal appeared OR the page redirected gracefully
-    if (!sessionExpiredModalVisible && !redirectedToSearch) {
-      console.warn('[TC-SESSION-02 QA FINDING] Session expiry mock did not trigger a visible modal or redirect. Recommend implementing a session expiry handler that alerts the user before releasing their seat lock.');
-    }
-
-    // Test always passes — documents the behaviour
-    expect(true).toBeTruthy();
+    // Strict assertion: Session expiry must either show a warning modal or redirect gracefully
+    expect(
+      sessionExpiredModalVisible || redirectedToSearch,
+      'Session expiry must trigger either an alert modal or graceful redirect to search'
+    ).toBeTruthy();
 
     // Clean up
     await page.unroute('**/api/session**').catch(() => {});
