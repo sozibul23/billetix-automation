@@ -25,6 +25,7 @@ For deep-dive testing artifacts and detailed test cases, consult the dedicated d
 | **Manual Test Plan** | 40+ Step-by-Step test cases across 9 modules (Auth, Search, Booking, Payment, E-Ticket) | [Read Plan](docs/MANUAL_TEST_PLAN.md) |
 | **Non-Functional Plan** | Performance (Lighthouse/k6), Security (OWASP Top 10), Arabic RTL, WCAG 2.1 AA a11y | [Read Plan](docs/NON_FUNCTIONAL_TEST_PLAN.md) |
 | **Defect Management** | Bug report template, Severity/Priority matrix, Bug lifecycle, QA release sign-off | [Read Guide](docs/DEFECT_MANAGEMENT.md) |
+| **Sign-Off Report** | Executive QA Sign-Off Report, 100% RTM Traceability & Production GO Verdict | [Read Report](docs/FINAL_QA_SIGN_OFF_REPORT.md) |
 
 ---
 

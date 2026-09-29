@@ -9,7 +9,11 @@
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
     "test:chromium": "playwright test --project=chromium",
-    "report": "playwright show-report"
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "test:all-browsers": "playwright test",
+    "report": "playwright show-report",
+    "report:allure": "allure generate allure-results --clean -o allure-report && allure open allure-report"
   },
   "keywords": [
     "playwright",
@@ -25,6 +29,7 @@
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.49.1",
     "@types/node": "^22.10.2",
+    "allure-playwright": "^3.13.0",
     "typescript": "^5.7.2",
     "xlsx": "^0.18.5"
   }
