@@ -195,6 +195,10 @@ npm run test:ui
 # 5. Run specific test suite
 npx playwright test tests/01-ui-components-baseline.spec.ts
 
-# 6. View HTML Test Execution Report
+# 6. View HTML Test Execution Report (Playwright)
 npm run report
+
+# 7. Generate & View Allure Dashboard Report
+npm run report:allure
 ```
+
